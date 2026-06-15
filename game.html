@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-8N4GRKYYWY"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-8N4GRKYYWY');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Danna's Town — Play</title>
+    <link rel="stylesheet" href="resources/styles/nav.css">
+    <link rel="stylesheet" href="resources/styles/game.css">
+    <link rel="shortcut icon" href="resources/images/mylogo_dbF_icon.ico" type="image/x-icon">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div class="topnav">
+        <a href="index.html">Home</a>
+        <a href="experience.html">Experience</a>
+        <a href="projects.html">Projects</a>
+        <a href="skills.html">Skills</a>
+        <a href="contact.html">Contact</a>
+        <a class="active" href="game.html">🎮 Play</a>
+    </div>
+
+    <main class="game-stage">
+        <div class="game-bar">
+            <span class="game-title">🌱 Danna's Town</span>
+            <span class="game-controls-hint">Move: <b>WASD</b> / arrows &nbsp;·&nbsp; Interact: <b>E</b> / Space</span>
+        </div>
+
+        <div id="game-wrap">
+            <canvas id="game-canvas"></canvas>
+            <div class="rotate-tip">📱 Rotate for a bigger view</div>
+        </div>
+    </main>
+
+    <!-- game scripts: order matters (art → world → engine) -->
+    <script src="js/game/art.js"></script>
+    <script src="js/game/world.js"></script>
+    <script src="js/game/engine.js"></script>
+</body>
+
+</html>
