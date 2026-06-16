@@ -398,6 +398,25 @@ ul.timeline-list li:nth-child(2n) .project-card {
   width: 100%;
 }
 
+.project-link {
+  display: inline-block;
+  margin-top: 14px;
+  padding: 7px 16px;
+  font-family: "poppins";
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  text-decoration: none;
+  border: 1.5px solid #ffffff;
+  border-radius: 999px;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.project-link:hover {
+  background: #ffffff;
+  color: #050505;
+}
+
 ul.timeline-list li:before {
   position: absolute;
   content: "";

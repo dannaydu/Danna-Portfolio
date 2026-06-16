@@ -19,8 +19,12 @@ const World = (() => {
       heading: 'Experience',
       blurb: 'Where I have worked, taught, and written.',
       sections: [
-        { title: 'Software Engineering Intern — Legislative Llama', meta: 'Jun 2025 – Aug 2025 · Remote (NYC)',
-          text: 'Collaborated with a remote engineering team using Git, Slack, and Trello; joined weekly standups and code reviews.' },
+        { title: 'App & AI Integration Intern — River of Life Foundation', meta: 'May 2026 – Present · Santa Clara, CA · On-site',
+          text: 'App development and AI feature integration.' },
+        { title: 'AI Trainer (SWE / Coding) — Handshake', meta: 'Apr 2026 – Present · Remote · Contract',
+          text: 'Evaluate and score frontier LLM responses on multi-turn coding tasks against a structured 1–7 rubric, authoring written rationales and preference comparisons to generate high-quality human-feedback data for AI coding assistants.' },
+        { title: 'Software Engineering Intern — Legislative Llama', meta: 'Jun 2025 – Aug 2025 · NYC Metro · Remote',
+          text: 'Developed bilingual English/Spanish interface features in a React/Next.js civic-tech platform; improved translation and advocacy flows supporting 500+ messages to lawmakers, and prototyped gender-neutral Spanish translations using LLM-assisted workflows.' },
         { title: 'COS 126 Undergraduate Course Assistant — Princeton CS', meta: 'Sep 2024 – Present',
           text: 'Graded assignments and gave constructive feedback to strengthen students\' grasp of foundational CS concepts.' },
         { title: 'Web Development & Design — The Daily Princetonian', meta: 'Sep 2024 – Present',
@@ -37,6 +41,8 @@ const World = (() => {
       heading: 'Projects',
       blurb: 'Things I have designed and built.',
       sections: [
+        { title: 'World Cup 2026: Model vs Market', meta: 'Python · Firebase · ML · Monte Carlo',
+          text: 'Probabilistic forecasting platform for the 2026 FIFA World Cup: an ensemble of Elo, Dixon-Coles Poisson, and gradient-boosted models plus 20k–50k Monte Carlo tournament simulations price matches and detect edges against live Kalshi/Polymarket markets, with a paper-trading ledger tracking CLV, ROI, and log-loss (~60% top-pick accuracy). <a href="https://fifa.dannaduarte.com" target="_blank" rel="noopener">fifa.dannaduarte.com →</a>' },
         { title: 'AI Investment Agent (Stock Chat)', meta: 'Python · LLM · Gradio',
           text: 'Fetches real-time stock data via yfinance and uses a conversational LLM (Hugging Face) to answer natural-language questions about any ticker, with a ChatGPT-style chat UI.' },
         { title: 'Seam Carving Image Re-sizer', meta: 'Python · Flask · Pillow · NumPy',
