@@ -328,6 +328,9 @@ body.touch .game-hud { font-size: 0.72rem; padding: 8px 10px; top: 8px; left: 8p
 
 /* small screens: tighten the bar */
 @media (max-width: 600px) {
-    .game-stage { padding: 0.3rem 0.4rem calc(0.4rem + env(safe-area-inset-bottom)); }
+    .game-stage {
+        padding: calc(var(--page-nav-offset, 5.5rem) + 0.5rem) 0.4rem calc(0.4rem + env(safe-area-inset-bottom));
+    }
+
     .game-title { font-size: 0.95rem; }
 }
