@@ -1,68 +1,531 @@
-/* Navigation Styles */
+/* ============================================================================
+ * nav.css — Design tokens + global base + modern responsive nav
+ * ----------------------------------------------------------------------------
+ * Linked on every page, so it doubles as the shared design system. The nav
+ * markup is enhanced at runtime by js/nav.js (brand + hamburger + collapsible
+ * link group), so no per-page markup changes are needed.
+ * ==========================================================================*/
+
+/* ---- design tokens ----------------------------------------------------- */
+:root {
+    color-scheme: dark;
+
+    --bg: #080b14;
+    --bg-2: #0d111c;
+    --surface: rgba(19, 25, 40, 0.66);
+    --surface-2: rgba(28, 36, 54, 0.7);
+    --surface-solid: #121826;
+    --border: rgba(255, 255, 255, 0.10);
+    --border-strong: rgba(255, 255, 255, 0.18);
+
+    --text: #eef1f7;
+    --text-muted: #adb6c7;
+    --text-dim: #79839a;
+
+    --accent: #e8836a;
+    --accent-2: #ff9f43;
+    --accent-soft: rgba(232, 131, 106, 0.15);
+    --accent-glow: rgba(232, 131, 106, 0.38);
+    --accent-grad: linear-gradient(90deg, #e8836a, #ff9f43);
+
+    --ok: #57d99b;
+
+    --radius-sm: 10px;
+    --radius: 16px;
+    --radius-lg: 22px;
+    --radius-pill: 999px;
+
+    --shadow-1: 0 4px 18px rgba(0, 0, 0, 0.35);
+    --shadow-2: 0 16px 44px rgba(0, 0, 0, 0.48);
+
+    --font-sans: "Poppins", system-ui, -apple-system, sans-serif;
+    --font-mono: "Space Mono", ui-monospace, monospace;
+
+    --container: 1160px;
+    --nav-h: 62px;
+}
+
+/* ---- global base ------------------------------------------------------- */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+}
+
+img {
+    max-width: 100%;
+}
+
+::selection {
+    background: var(--accent-soft);
+    color: #fff;
+}
+
+:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+/* ---- nav bar ----------------------------------------------------------- */
 .topnav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
     display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
     width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-    z-index: 10;
-    overflow: hidden;
-    text-align: center;
-    justify-content: center;
-    padding: 1rem;
-    background: transparent;
-    position: relative;
+    max-width: none;
+    margin: 0;
+    padding: clamp(1.2rem, 3vw, 2.4rem) clamp(1.4rem, 5vw, 5.4rem);
+    background: linear-gradient(180deg, rgba(5, 5, 6, 0.66), transparent);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border-bottom: 0;
+    box-shadow: none;
+    font-family: var(--font-mono);
+    overflow: visible;
+    text-align: left;
 }
 
-.topnav a {
-    color: #f9f6f6;
-    text-align: center;
-    padding: 0.8rem 1.2rem;
+.nav-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.15rem;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: clamp(0.92rem, 1.1vw, 1.15rem);
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    color: rgba(238, 241, 247, 0.62);
     text-decoration: none;
-    font-size: 1rem;
-    font-family: "Poppins", sans-serif;
-    transition: all 0.3s ease;
-    border-radius: 4px;
-    margin: 0 0.2rem;
     white-space: nowrap;
+    padding: 0.4rem 0;
+    transition: color 0.2s ease;
 }
 
-.topnav a:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    color: #ffffff;
-    transform: translateY(-2px);
+.nav-brand:hover {
+    color: #fff;
+}
+
+.nav-brand .dot {
+    color: var(--accent);
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: clamp(0.8rem, 2vw, 2rem);
+}
+
+.topnav a:not(.nav-brand) {
+    position: relative;
+    color: rgba(238, 241, 247, 0.58);
+    text-decoration: none;
+    font-family: var(--font-mono);
+    font-size: 0.92rem;
+    font-weight: 700;
+    line-height: 1;
+    padding: 0;
+    border-radius: 0;
+    white-space: nowrap;
+    text-transform: uppercase;
+    transition: color 0.2s ease, background 0.2s ease;
+}
+
+.topnav a:not(.nav-brand):hover {
+    color: var(--accent);
+    background: transparent;
+    transform: none;
 }
 
 .topnav a.active {
-    background-color: rgba(255, 255, 255, 0.2);
-    color: #ffffff;
-    font-weight: 500;
+    color: var(--accent);
+    font-weight: 600;
+    background: transparent;
 }
 
-/* Mobile Navigation */
-@media screen and (max-width: 768px) {
+.topnav a.active::after {
+    display: none;
+}
+
+/* ---- hamburger toggle -------------------------------------------------- */
+.nav-toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.04);
+    cursor: pointer;
+}
+
+.nav-toggle span {
+    display: block;
+    width: 20px;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--text);
+    transition: transform 0.25s ease, opacity 0.2s ease;
+}
+
+.topnav.open .nav-toggle span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+}
+
+.topnav.open .nav-toggle span:nth-child(2) {
+    opacity: 0;
+}
+
+.topnav.open .nav-toggle span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+}
+
+/* ---- mobile: collapse links into a dropdown ---------------------------- */
+@media screen and (max-width: 760px) {
     .topnav {
-        padding: 0.5rem;
-        flex-wrap: wrap;
-        gap: 0.5rem;
+        padding: 0.8rem 1rem;
+        background: rgba(8, 11, 20, 0.72);
+        backdrop-filter: blur(16px) saturate(160%);
+        -webkit-backdrop-filter: blur(16px) saturate(160%);
+        border-bottom: 1px solid var(--border);
     }
 
-    .topnav a {
-        padding: 0.6rem 0.8rem;
-        font-size: 0.9rem;
-        flex: 1;
-        min-width: fit-content;
+    .nav-brand {
+        font-size: 0.98rem;
+    }
+
+    .nav-toggle {
+        display: inline-flex;
+    }
+
+    .nav-links {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.15rem;
+        padding: 0.5rem;
+        background: rgba(10, 13, 22, 0.97);
+        backdrop-filter: blur(18px) saturate(160%);
+        -webkit-backdrop-filter: blur(18px) saturate(160%);
+        border-bottom: 1px solid var(--border);
+        box-shadow: var(--shadow-2);
+        transform: translateY(-10px);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.22s ease, transform 0.22s ease;
+    }
+
+    .topnav.open .nav-links {
+        transform: translateY(0);
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .topnav a:not(.nav-brand) {
+        padding: 0.85rem 1rem;
+        border-radius: 10px;
+        font-size: 1rem;
+        text-transform: none;
+    }
+
+    .topnav a.active {
+        background: var(--accent-soft);
+    }
+
+    .topnav a.active::after {
+        display: none;
     }
 }
 
-/* Small Mobile Navigation */
-@media screen and (max-width: 480px) {
-    .topnav {
-        padding: 0.5rem;
-        gap: 0.3rem;
-    }
+/* ============================================================================
+ * component refresh — restyles the shared page components into the refined
+ * dark-space system. Loaded after each page's own CSS, so these win.
+ * ==========================================================================*/
 
-    .topnav a {
-        padding: 0.5rem 0.6rem;
-        font-size: 0.85rem;
-    }
-} 
+/* page shell: consistent responsive side padding */
+.main-container {
+    padding-top: var(--page-nav-offset, 5.5rem) !important;
+    padding-inline: clamp(1rem, 5vw, 3.5rem) !important;
+}
+
+/* section titles (h4 on most pages, h1 on contact) */
+.section-title h4,
+.section-title h1 {
+    font-family: var(--font-sans);
+    font-weight: 700;
+    font-size: clamp(2rem, 5vw, 3rem);
+    letter-spacing: -0.5px;
+    color: var(--text);
+    text-shadow: 0 2px 34px rgba(232, 131, 106, 0.22);
+}
+
+.section-title h4::before,
+.section-title h1::before {
+    background: var(--accent-grad) !important;
+    box-shadow: 0 0 14px var(--accent-glow) !important;
+    height: 3px;
+}
+
+.section-title h4::after,
+.section-title h1::after {
+    background: var(--accent) !important;
+    box-shadow: 0 0 10px var(--accent-glow) !important;
+}
+
+/* timeline cards (experience + projects) */
+.experience-card,
+.project-card {
+    border: 1px solid var(--border) !important;
+    background: var(--surface) !important;
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    box-shadow: var(--shadow-1) !important;
+    border-radius: var(--radius) !important;
+}
+
+.experience-card:hover,
+.project-card:hover {
+    border-color: var(--accent) !important;
+    box-shadow: var(--shadow-2), 0 0 0 1px var(--accent-glow), 0 12px 44px var(--accent-glow) !important;
+    background: var(--surface-2) !important;
+}
+
+/* project cards lift on hover; experience cards keep their JS 3D tilt
+   (leaving their transform to the inline style set by experience-card.js) */
+.project-card:hover {
+    transform: translateY(-4px) !important;
+}
+
+/* timeline spine + node */
+ul.timeline-list::before {
+    background-color: var(--border) !important;
+    box-shadow: none !important;
+}
+
+/* only the top-level timeline cards get a node dot — NOT the bullet <li>s
+   nested inside a card's description list */
+ul.timeline-list > li::before {
+    background: var(--accent) !important;
+    box-shadow: 0 0 12px var(--accent-glow) !important;
+    width: 14px !important;
+    height: 14px !important;
+    border: 3px solid var(--bg);
+}
+
+/* restore normal bullet points inside card description lists (the broad
+   timeline-node rule in experience/projects css otherwise hijacks them) */
+ul.timeline-list .exp-info li::before,
+ul.timeline-list .project-info li::before {
+    content: "•" !important;
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
+    width: 1em !important;
+    height: auto !important;
+    margin-left: -1em !important;
+    background: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    transform: none !important;
+    color: var(--accent) !important;
+    font-weight: 700;
+    display: inline-block;
+}
+
+/* year / meta / names / body */
+.exp-year,
+.project-year {
+    font-family: var(--font-mono) !important;
+    font-size: 0.8rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: var(--accent) !important;
+    text-shadow: none !important;
+}
+
+.exp-name h4,
+.project-name h4 {
+    color: var(--text);
+    text-shadow: none;
+    letter-spacing: -0.2px;
+}
+
+.exp-employer,
+.project-tech {
+    color: var(--text-muted) !important;
+    text-shadow: none !important;
+}
+
+.exp-info,
+.project-info {
+    color: var(--text-muted);
+    line-height: 1.65;
+}
+
+.exp-info a,
+.project-info a {
+    color: var(--accent);
+}
+
+/* live-link pill → accent */
+.project-link {
+    border-color: var(--accent) !important;
+    color: var(--accent) !important;
+}
+
+.project-link:hover {
+    background: var(--accent) !important;
+    color: #12060a !important;
+    box-shadow: 0 6px 20px var(--accent-glow);
+}
+
+/* skills */
+.skill-category {
+    background: var(--surface) !important;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-1) !important;
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+}
+
+.skill-category:hover {
+    box-shadow: var(--shadow-2) !important;
+    border-color: var(--accent);
+    background: var(--surface-2) !important;
+}
+
+.skill-category h2 {
+    color: var(--text);
+    text-shadow: none;
+    font-family: var(--font-sans);
+}
+
+.skill-item {
+    border: 1px solid var(--border);
+}
+
+.skill-level::after {
+    background: var(--accent-grad) !important;
+    box-shadow: 0 0 8px var(--accent-glow) !important;
+}
+
+/* contact */
+.contact-container {
+    background: var(--surface) !important;
+    border: 1px solid var(--border) !important;
+    box-shadow: var(--shadow-1) !important;
+    border-radius: var(--radius) !important;
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+}
+
+.contact-container:hover {
+    border-color: var(--accent) !important;
+    box-shadow: var(--shadow-2), 0 0 0 1px var(--accent-glow) !important;
+    transform: translateY(-4px);
+}
+
+.contact-container::before {
+    background: linear-gradient(to right, transparent, var(--accent-soft), transparent) !important;
+}
+
+.section-title p.subtitle {
+    background: var(--accent-grad) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    animation: none !important;
+}
+
+.form-group label {
+    color: var(--text);
+    text-shadow: none;
+}
+
+.form-group input,
+.form-group textarea {
+    border: 1px solid var(--border) !important;
+    background: rgba(255, 255, 255, 0.04) !important;
+    color: var(--text) !important;
+    border-radius: var(--radius-sm) !important;
+}
+
+.form-group input:hover,
+.form-group textarea:hover {
+    border-color: var(--border-strong) !important;
+    background: rgba(255, 255, 255, 0.06) !important;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 3px var(--accent-soft) !important;
+    background: rgba(255, 255, 255, 0.06) !important;
+}
+
+.submit-btn {
+    background: var(--accent-grad) !important;
+    border: none !important;
+    color: #12060a !important;
+    font-weight: 600 !important;
+    border-radius: var(--radius-pill) !important;
+    text-shadow: none !important;
+}
+
+.submit-btn:hover {
+    box-shadow: 0 10px 30px var(--accent-glow) !important;
+    transform: translateY(-2px);
+    filter: brightness(1.05);
+}
+
+.form-status.success {
+    border-color: var(--ok) !important;
+    color: var(--ok) !important;
+    box-shadow: none !important;
+}
+
+/* home hero touches */
+#university {
+    color: var(--accent-2) !important;
+    text-shadow: 0 0 14px rgba(255, 159, 67, 0.4) !important;
+}
+
+#blurb {
+    color: var(--text-muted) !important;
+}
+
+.button,
+#tiger-head {
+    border: 1px solid var(--border) !important;
+    box-shadow: none !important;
+    border-radius: 12px !important;
+}
+
+.button:hover,
+#tiger-head:hover {
+    background: var(--accent-soft) !important;
+}

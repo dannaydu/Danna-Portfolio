@@ -22,19 +22,19 @@ body {
     overscroll-behavior: none; /* no rubber-band scroll on mobile */
 }
 
-/* keep the existing nav readable on the dark game background */
-.topnav {
-    background: rgba(12, 16, 24, 0.85);
-    flex: 0 0 auto; /* never let the nav get squashed */
-}
-
 .game-stage {
     display: flex;
     flex-direction: column;
     flex: 1;          /* fill whatever height is left under the nav */
     min-height: 0;
-    padding: 0.4rem 0.8rem calc(0.8rem + env(safe-area-inset-bottom));
+    padding: calc(var(--page-nav-offset, 5.5rem) + 2rem) 0.8rem calc(0.8rem + env(safe-area-inset-bottom));
     gap: 0.5rem;
+}
+
+@media (max-width: 760px) {
+    .game-stage {
+        padding-top: calc(var(--page-nav-offset, 5.5rem) + 0.5rem);
+    }
 }
 
 .game-bar {

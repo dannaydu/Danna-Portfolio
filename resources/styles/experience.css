@@ -10,6 +10,16 @@ body {
     position: relative;
 }
 
+.experience .row {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.experience [class*="col-"] {
+    padding-left: 0;
+    padding-right: 0;
+}
+
 
 
 #background {
@@ -49,6 +59,12 @@ body::before {
     min-height: 100vh;
 }
 
+.experience {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
 .typewrite {
     text-decoration: none;
 }
@@ -71,7 +87,8 @@ body::before {
 }
 
 .section-title {
-    margin-bottom: 60px;
+    margin-bottom: 48px;
+    text-align: center;
 }
 
 .section-title p {
@@ -141,6 +158,7 @@ ul.timeline-list li {
     clear: both;
     display: table;
     margin: 0 auto;
+    width: 100%;
 }
 
 .experience-card {
@@ -148,9 +166,7 @@ ul.timeline-list li {
     background-color: #050505b6;
     box-shadow: #ffffff 5px 0 10px;
     width: 50%;
-    
-
-
+    box-sizing: border-box;
 }
 
 ul.timeline-list li .experience-card {
@@ -181,6 +197,11 @@ ul.timeline-list li:nth-child(2n) .experience-card {
     text-shadow: #f2f2f2 1px 0 4px;
 }
 
+.exp-name h4 {
+    margin: 0;
+    line-height: 1.25;
+}
+
 .exp-employer { 
     font-family: "poppins";
     font-style: italic;
@@ -189,6 +210,7 @@ ul.timeline-list li:nth-child(2n) .experience-card {
     padding-bottom: 30px;
     text-shadow: #f2f2f2 1px 0 3px;
     color: hsl(0, 14%, 86%);
+    overflow-wrap: anywhere;
 
 }
 
@@ -216,6 +238,7 @@ ul.timeline-list li:before {
 
 .exp-info {
     font-size: 16px;
+    line-height: 1.55;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     color: #f2f2f2;
 }
@@ -244,38 +267,92 @@ ul.timeline-list li:before {
 
 @media screen and (max-width: 767px) {
 
-    ul.timeline-list {
-        position: relative;
-
+    .main-container {
+        padding: 0 16px 36px;   /* was 60px wide on phones */
+        gap: 12px;
     }
 
-    ul.timeline-list li .experience-card {
+    .pt-100 {
+        padding-top: 24px;
+    }
+
+    .pb-100 {
+        padding-bottom: 56px;
+    }
+
+    .section-title {
+        margin-bottom: 30px;
+    }
+
+    ul.timeline-list {
+        position: relative;
+        padding: 0;
+        max-width: 100%;
+    }
+
+    ul.timeline-list li {
+        display: block;
         width: 100%;
-        float: right;
-        text-align: center;
+        margin: 0 0 22px;
+    }
+
+    ul.timeline-list li .experience-card,
+    ul.timeline-list li:nth-child(2n) .experience-card {
+        width: 100%;
+        box-sizing: border-box;   /* include padding + border so it fits */
+        float: none;
+        padding: 22px;
+        border-width: 2px;
+        box-shadow: #ffffff 3px 0 8px;
+        text-align: left;
+    }
+
+    .exp-name {
+        font-size: 18px;
     }
 
     .exp-employer {
-        padding-bottom: 60px;
+        padding-bottom: 14px;
     }
 
-    ul.timeline-list li:nth-child(2n) .experience-card {
-        float: right;
-        text-align: center;
-        width: 100%;
+    .section-title h4 {
+        font-size: 34px;
+    }
 
+    .exp-year {
+        font-size: 16px;
+    }
 
+    .exp-info {
+        font-size: 15px;
     }
 
     ul.timeline-list:before {
-       
         background-color: transparent;
-        
     }
 
     ul.timeline-list li:before {
         opacity: 0;
-        
     }
 
+}
+
+@media screen and (max-width: 480px) {
+
+    ul.timeline-list li .experience-card,
+    ul.timeline-list li:nth-child(2n) .experience-card {
+        padding: 18px;
+    }
+
+    .section-title h4 {
+        font-size: 28px;
+    }
+
+    .exp-name {
+        font-size: 16px;
+    }
+
+    .exp-info {
+        font-size: 14px;
+    }
 }

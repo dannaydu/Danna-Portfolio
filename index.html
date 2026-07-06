@@ -16,41 +16,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Danna's Portfolio</title>
-    <link rel="stylesheet" href="resources/styles/home.css">
     <link rel="stylesheet" href="resources/styles/nav.css">
+    <link rel="stylesheet" href="resources/styles/home.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        #background {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-        }
-
-        .play-cta {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.45rem;
-            margin-top: 1.4rem;
-            padding: 0.6rem 1.2rem;
-            font-family: "Poppins", sans-serif;
-            font-weight: 500;
-            font-size: 0.92rem;
-            color: #fffaf2;
-            text-decoration: none;
-            background: rgba(224, 122, 95, 0.9);
-            border-radius: 999px;
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
-            transition: transform 0.18s ease, background 0.18s ease;
-        }
-
-        .play-cta:hover {
-            transform: translateY(-2px);
-            background: rgba(224, 122, 95, 1);
-        }
-    </style>
     <link rel="shortcut icon" href="resources/images/mylogo_dbF_icon.ico" type="image/x-icon">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -60,7 +28,7 @@
         rel="stylesheet">
 </head>
 
-<body>
+<body class="home-page">
     <div id="background"></div>
     <div class="main-container">
 
@@ -74,11 +42,15 @@
 
         <main class="content-container">
             <section class="Intro">
-                <h4 id="hi">Hi there! I'm</h4>
-                <h1 id="name">Danna Duarte Giron</h1>
+                <h4 id="hi">Hi there, I'm</h4>
+                <h1 id="name">
+                    <span>Danna</span>
+                    <span>Duarte</span>
+                    <span class="name-accent">Giron</span>
+                </h1>
                 <h3 id="student" class="typewrite"
-                    data-type='["A Computer Science Student", "A Software Engineer", "A Journalist"]'
-                    data-period="2000">
+                    data-type='["A Software Engineer", "A Writer", "A Researcher"]'
+                    data-period="1800">
                     <span class="wrap"></span>
                 </h3>
                 <h3 id="university">@ Princeton University</h3>
@@ -95,14 +67,29 @@
                     <a href="https://www.dailyprincetonian.com/staff/danna-duarte" target="_blank">
                         <img src="resources/images/tiger-head.png" alt="Prince Logo" class="button" id="tiger-head">
                     </a>
+                    <span class="social-label">Find me here</span>
                 </div>
 
-                <a href="game.html" class="play-cta">psst — I made a game version 🎮</a>
+                <a href="game.html" class="play-cta">psst &mdash; i made a game version <span aria-hidden="true">&nearr;</span></a>
 
             </section>
 
             <section class="photo-danna">
-                <img src="resources/images/danna.jpeg" alt="">
+                <div class="room-frame">
+                    <span class="video-corner video-corner-tl" aria-hidden="true"></span>
+                    <span class="video-corner video-corner-tr" aria-hidden="true"></span>
+                    <span class="video-corner video-corner-bl" aria-hidden="true"></span>
+                    <span class="video-corner video-corner-br" aria-hidden="true"></span>
+                    <video class="coding-character-video" autoplay muted loop playsinline preload="metadata"
+                        poster="resources/images/coding-character-poster.png"
+                        aria-label="Animated 3D character coding at a desk">
+                        <source src="resources/videos/coding-character.mp4" type="video/mp4">
+                    </video>
+                    <button class="video-audio-toggle" type="button" aria-label="Toggle animation sound" aria-pressed="false">
+                        <i class="fa-solid fa-volume-xmark" aria-hidden="true"></i>
+                    </button>
+                    <span class="video-rail" aria-hidden="true">Portfolio / 2026</span>
+                </div>
             </section>
         </main>
     </div>
@@ -113,6 +100,47 @@
         feather.replace();
     </script>
     <script src="js/typewriter.js"></script>
+    <script>
+        (function () {
+            var motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+            var videos = document.querySelectorAll('.coding-character-video');
+
+            function syncHeroVideoMotion() {
+                videos.forEach(function (video) {
+                    if (motionQuery.matches) {
+                        video.pause();
+                        video.removeAttribute('autoplay');
+                    } else {
+                        video.setAttribute('autoplay', '');
+                        video.play().catch(function () {});
+                    }
+                });
+            }
+
+            syncHeroVideoMotion();
+            if (motionQuery.addEventListener) {
+                motionQuery.addEventListener('change', syncHeroVideoMotion);
+            } else if (motionQuery.addListener) {
+                motionQuery.addListener(syncHeroVideoMotion);
+            }
+
+            document.querySelectorAll('.video-audio-toggle').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    var frame = button.closest('.room-frame');
+                    var video = frame && frame.querySelector('.coding-character-video');
+                    var icon = button.querySelector('i');
+
+                    if (!video) return;
+                    video.muted = !video.muted;
+                    button.setAttribute('aria-pressed', String(!video.muted));
+
+                    if (icon) {
+                        icon.className = video.muted ? 'fa-solid fa-volume-xmark' : 'fa-solid fa-volume-high';
+                    }
+                });
+            });
+        })();
+    </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r121/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.waves.min.js"></script>
     <script>
@@ -132,6 +160,7 @@
             zoom: 1.07
         })
     </script>
+    <script src="js/nav.js"></script>
 </body>
 
 </html>

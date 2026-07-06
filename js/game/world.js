@@ -43,6 +43,12 @@ const World = (() => {
       sections: [
         { title: 'World Cup 2026: Model vs Market', meta: 'Python · Firebase · ML · Monte Carlo',
           text: 'Probabilistic forecasting platform for the 2026 FIFA World Cup: an ensemble of Elo, Dixon-Coles Poisson, and gradient-boosted models plus 20k–50k Monte Carlo tournament simulations price matches and detect edges against live Kalshi/Polymarket markets, with a paper-trading ledger tracking CLV, ROI, and log-loss (~60% top-pick accuracy). <a href="https://fifa.dannaduarte.com" target="_blank" rel="noopener">fifa.dannaduarte.com →</a>' },
+        { title: 'PNI Waitlist Management App', meta: 'Python · React · Flask · PostgreSQL · Render',
+          text: 'Full-stack app (built with a team of 5) to streamline Princeton Neuroscience Institute course waitlists and enrollment — role-based access, queue logic, and a responsive React/Tailwind frontend on a Flask + PostgreSQL backend.' },
+        { title: 'Hedge Fund Investment Agent', meta: 'Python · LangChain · OpenAI · Streamlit',
+          text: 'AI agent that simulates equity investment decisions: integrates live market data (yFinance) with LLM reasoning and function calling, storing analysis, memory, and trade rationales in SQL, served through a Streamlit interface.' },
+        { title: 'Roulette Reminders', meta: 'Flutter · Firebase · Material 3',
+          text: 'Flutter/Firebase task manager with a casino-style motivation system: authenticated, Firestore-backed todos (due dates, recurring schedules, subtasks, reminders, file attachments) in list/calendar views, where completing tasks earns roulette spins and “House Chips” for deadline-tied bets. <a href="https://roulettereminders.dannaduarte.com" target="_blank" rel="noopener">roulettereminders.dannaduarte.com →</a>' },
         { title: 'AI Investment Agent (Stock Chat)', meta: 'Python · LLM · Gradio',
           text: 'Fetches real-time stock data via yfinance and uses a conversational LLM (Hugging Face) to answer natural-language questions about any ticker, with a ChatGPT-style chat UI.' },
         { title: 'Seam Carving Image Re-sizer', meta: 'Python · Flask · Pillow · NumPy',

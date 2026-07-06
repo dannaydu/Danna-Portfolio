@@ -43,9 +43,16 @@ body::before {
     min-height: 100vh;
 }
 
+.skills-section {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 40px 0 80px;
+}
+
 /* Skills Section Styles */
 .section-title {
-    margin-bottom: 60px;
+    margin-bottom: 44px;
     text-align: center;
 }
 
@@ -117,9 +124,9 @@ body::before {
 /* Skills Grid Layout */
 .skills-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: 30px;
-    padding: 20px;
+    padding: 0;
     max-width: 1400px;
     margin: 0 auto;
 }
@@ -127,9 +134,10 @@ body::before {
 .skill-category {
     background-color: #050505b6;
     padding: 25px;
-    margin-bottom: 30px;
+    margin-bottom: 0;
     box-shadow: #ffffff 3px 0 8px;
     transition: all 0.3s ease;
+    border-radius: 8px;
 }
 
 .skill-category:hover {
@@ -172,6 +180,7 @@ body::before {
     color: #ffffff;
     font-size: 16px;
     font-weight: 500;
+    overflow-wrap: anywhere;
 }
 
 .skill-name i {
@@ -285,42 +294,51 @@ body::before {
 /* Responsive Design */
 @media screen and (max-width: 1200px) {
     .skills-grid {
-        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     }
 }
 
 @media screen and (max-width: 768px) {
     .main-container {
-        padding-inline: 20px;
+        padding: 0 16px 36px;
+        gap: 12px;
+    }
+
+    .skills-section {
+        padding: 24px 0 56px;
     }
 
     .skills-grid {
         grid-template-columns: 1fr;
-        gap: 20px;
+        gap: 18px;
+    }
+
+    .skill-items {
+        grid-template-columns: 1fr;
+        gap: 14px;
     }
 
     .skill-category:hover,
     .skill-item:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 5px 15px var(--shadow-color);
+        transform: none;
     }
 
     .section-title h4 {
-        font-size: 35px;
+        font-size: 34px;
     }
 }
 
 @media screen and (max-width: 480px) {
     .main-container {
-        padding-inline: 10px;
+        padding-inline: 14px;
     }
 
     .skill-category {
-        padding: 20px;
+        padding: 18px;
     }
 
     .skill-name {
-        font-size: 1rem;
+        font-size: 15px;
     }
 
     .section-title h4 {
@@ -339,4 +357,4 @@ body::before {
     .section-title h4 {
         font-size: 28px;
     }
-} 
+}

@@ -45,7 +45,12 @@ window.onload = function() {
         var toRotate = elements[i].getAttribute('data-type');
         var period = elements[i].getAttribute('data-period');
         if (toRotate) {
-          new TxtType(elements[i], JSON.parse(toRotate), period);
+          var roles = JSON.parse(toRotate);
+          if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            elements[i].innerHTML = '<span class="wrap">' + roles[0] + '</span>';
+          } else {
+            new TxtType(elements[i], roles, period);
+          }
         }
     }
     
@@ -87,4 +92,3 @@ document.querySelectorAll('.photo-danna').forEach(card => {
         card.style.transform = 'none';
     });
 });
-

@@ -49,6 +49,7 @@ body::before {
     margin: 40px auto;
     padding: 20px;
     width: 100%;
+    box-sizing: border-box;
 }
 
 .section-title {
@@ -78,7 +79,7 @@ body::before {
     margin-top: 15px;
     text-shadow: #d86666 1px 0 4px;
     font-family: 'Space Mono', monospace;
-    letter-spacing: 1px;
+    letter-spacing: 0;
     font-weight: 500;
     line-height: 1.5;
     background: linear-gradient(90deg, #ff0000, #ff3333);
@@ -124,7 +125,7 @@ body::before {
 .contact-container {
     background: rgba(5, 5, 5, 0.7);
     border: 2px solid #ffffff;
-    border-radius: 15px;
+    border-radius: 8px;
     padding: 40px;
     box-shadow: #ffffff 5px 0 10px;
     max-width: 600px;
@@ -132,6 +133,7 @@ body::before {
     position: relative;
     overflow: hidden;
     transition: all 0.3s ease;
+    box-sizing: border-box;
 }
 
 .contact-container::before {
@@ -200,7 +202,8 @@ body::before {
     font-size: 16px;
     transition: all 0.3s ease;
     margin-bottom: 5px;
-    text-align: center;
+    text-align: left;
+    box-sizing: border-box;
 }
 
 .form-group input:hover,
@@ -321,29 +324,52 @@ body::before {
 
 @media screen and (max-width: 768px) {
     .main-container {
-        padding-inline: 20px;
+        padding: 0 16px 36px;
+        gap: 12px;
+    }
+
+    .contact-section {
+        margin: 24px auto 56px;
+        padding: 0;
     }
 
     .contact-container {
         padding: 20px;
+        box-shadow: #ffffff 3px 0 8px;
     }
 
     .section-title h1 {
-        font-size: 36px;
+        font-size: 34px;
+    }
+
+    .section-title p.subtitle {
+        font-size: 16px;
+        line-height: 1.45;
+        animation: none;
+    }
+
+    .submit-btn {
+        width: 100%;
     }
 }
 
 @media screen and (max-width: 480px) {
     .contact-container {
-        padding: 15px;
+        padding: 16px;
     }
 
     .form-group input,
     .form-group textarea {
         font-size: 14px;
+        padding: 13px;
     }
 
     .submit-btn {
         font-size: 14px;
+        padding: 14px 18px;
     }
-} 
+
+    .section-title h1 {
+        font-size: 30px;
+    }
+}
