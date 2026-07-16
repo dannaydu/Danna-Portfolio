@@ -1,0 +1,315 @@
+/* ============================================================
+   Animated typing avatar — hero illustration
+   Self-contained: copy the #avatar-typing SVG block + this file
+   into any page and it works.
+   ============================================================ */
+
+:root {
+  /* scene */
+  --avatar-wall: #0a0d15;
+  --avatar-floor: #0c101a;
+  --avatar-shelf: #1c202b;
+  --avatar-plant: #4e7d63;
+  --avatar-pot: #2a2e3a;
+
+  /* furniture */
+  --avatar-desk: #232733;
+  --avatar-desk-top: #2e3342;
+  --avatar-desk-leg: #191d27;
+  --avatar-chair: #151820;
+  --avatar-chair-dark: #10131a;
+
+  /* hardware */
+  --avatar-bezel: #171a22;
+  --avatar-screen: #0b0e16;
+  --avatar-screen-bar: #131722;
+  --avatar-stand: #12141c;
+  --avatar-keyboard: #1b1f29;
+  --avatar-key: #2b303d;
+
+  /* code on screens */
+  --code-cream: rgba(248, 244, 237, 0.55);
+  --code-orange: rgba(241, 136, 69, 0.85);
+  --code-dim: rgba(148, 158, 180, 0.4);
+
+  /* character */
+  --avatar-skin: #eab68f;
+  --avatar-skin-shadow: #d69c74;
+  --avatar-hair: #16151b;
+  --avatar-hair-hi: #2a2833;
+  --avatar-shirt: #20242f;
+  --avatar-shirt-shadow: #181c25;
+  --avatar-jeans: #2a3040;
+  --avatar-jeans-far: #222736;
+  --avatar-shoe: #14161d;
+  --avatar-headphones: #2c2f3a;
+  --avatar-eye: #241f1c;
+  --avatar-necklace: #e5b56b;
+  --avatar-watch: #262a34;
+
+  /* accents + light */
+  --avatar-accent: #f18845;
+  --avatar-mug: #f18845;
+  --screen-glow: #f8f4ed;
+  --avatar-steam: #f8f4ed;
+}
+
+/* ---- layout inside the .room-frame -------------------------- */
+
+.avatar-scene {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-sizing: border-box;
+  background: rgba(8, 11, 20, 0.45);
+}
+
+/* ---- fills / strokes (all colors live here, not in the SVG) -- */
+
+.c-wall { fill: var(--avatar-wall); }
+.c-floor { fill: var(--avatar-floor); }
+.c-shelf { fill: var(--avatar-shelf); }
+.c-plant { fill: var(--avatar-plant); }
+.c-pot { fill: var(--avatar-pot); }
+.c-book { fill: var(--code-dim); }
+.c-book-accent { fill: var(--code-orange); }
+
+.c-desk { fill: var(--avatar-desk); }
+.c-desk-top { fill: var(--avatar-desk-top); }
+.c-desk-leg { fill: var(--avatar-desk-leg); }
+.c-chair { fill: var(--avatar-chair); }
+.c-chair-dark { fill: var(--avatar-chair-dark); }
+
+.c-bezel { fill: var(--avatar-bezel); }
+.c-screen { fill: var(--avatar-screen); }
+.c-screen-bar { fill: var(--avatar-screen-bar); }
+.c-stand { fill: var(--avatar-stand); }
+.c-keyboard { fill: var(--avatar-keyboard); }
+.c-key { fill: var(--avatar-key); }
+
+.c-code-cream { fill: var(--code-cream); }
+.c-code-orange { fill: var(--code-orange); }
+.c-code-dim { fill: var(--code-dim); }
+
+.c-skin { fill: var(--avatar-skin); }
+.c-skin-shadow { fill: var(--avatar-skin-shadow); }
+.s-skin { stroke: var(--avatar-skin); }
+.s-skin-shadow { stroke: var(--avatar-skin-shadow); }
+.c-hair { fill: var(--avatar-hair); }
+.s-hair-hi { stroke: var(--avatar-hair-hi); }
+.c-shirt { fill: var(--avatar-shirt); }
+.s-shirt { stroke: var(--avatar-shirt); }
+.s-shirt-shadow { stroke: var(--avatar-shirt-shadow); }
+.c-jeans { fill: var(--avatar-jeans); }
+.s-jeans { stroke: var(--avatar-jeans); }
+.c-jeans-far { fill: var(--avatar-jeans-far); }
+.s-jeans-far { stroke: var(--avatar-jeans-far); }
+.c-shoe { fill: var(--avatar-shoe); }
+.c-headphones { fill: var(--avatar-headphones); }
+.s-headphones { stroke: var(--avatar-headphones); }
+.c-headphone-dot { fill: var(--avatar-accent); opacity: 0.55; }
+.c-eye { fill: var(--avatar-eye); }
+.s-brow { stroke: var(--avatar-eye); }
+.s-mouth { stroke: var(--avatar-skin-shadow); }
+.c-blush { fill: var(--avatar-accent); opacity: 0.14; }
+.s-necklace { stroke: var(--avatar-necklace); }
+.c-watch { fill: var(--avatar-watch); }
+.c-button { fill: rgba(248, 244, 237, 0.28); }
+
+.c-mug { fill: var(--avatar-mug); }
+.s-mug { stroke: var(--avatar-mug); }
+.s-steam { stroke: var(--avatar-steam); }
+
+.glow-stop-a { stop-color: var(--screen-glow); stop-opacity: 0.13; }
+.glow-stop-b { stop-color: var(--screen-glow); stop-opacity: 0; }
+.c-screen-wash { fill: var(--screen-glow); }
+
+/* ---- animation ----------------------------------------------
+   Transform + opacity only. Joints pivot via
+   transform-box: view-box + px origins (exact viewBox coords,
+   independent of each part's bounding box). */
+
+#avatar-typing .anim {
+  transform-box: view-box;
+}
+
+/* typing — steps(1, end) holds each pose, then jumps: reads as
+   discrete keystrokes. Irregular keyframe spacing + a rest gap
+   per cycle keeps the rhythm from feeling metronomic. */
+#arm-near-lower {
+  transform-origin: 664px 332px; /* elbow */
+  animation: type-near 2.7s steps(1, end) infinite;
+}
+
+#arm-far-lower {
+  transform-origin: 654px 324px; /* elbow */
+  animation: type-far 3.3s steps(1, end) infinite;
+}
+
+@keyframes type-near {
+  0% { transform: rotate(0deg); }
+  4% { transform: rotate(2.4deg); }
+  8% { transform: rotate(0deg); }
+  12% { transform: rotate(2.4deg); }
+  16% { transform: rotate(0deg); }
+  21% { transform: rotate(2.4deg); }
+  25% { transform: rotate(0deg); }
+  29% { transform: rotate(2.4deg); }
+  33% { transform: rotate(0deg); }
+  37% { transform: rotate(2.4deg); }
+  41% { transform: rotate(0deg); } /* rest until 58% */
+  58% { transform: rotate(2.4deg); }
+  62% { transform: rotate(0deg); }
+  67% { transform: rotate(2.4deg); }
+  71% { transform: rotate(0deg); }
+  75% { transform: rotate(2.4deg); }
+  79% { transform: rotate(0deg); }
+  84% { transform: rotate(2.4deg); }
+  88% { transform: rotate(0deg); }
+  100% { transform: rotate(0deg); }
+}
+
+@keyframes type-far {
+  0% { transform: rotate(0deg); }
+  5% { transform: rotate(2.6deg); }
+  9% { transform: rotate(0deg); }
+  13% { transform: rotate(2.6deg); }
+  17% { transform: rotate(0deg); }
+  22% { transform: rotate(2.6deg); }
+  26% { transform: rotate(0deg); } /* rest until 44% */
+  44% { transform: rotate(2.6deg); }
+  48% { transform: rotate(0deg); }
+  52% { transform: rotate(2.6deg); }
+  56% { transform: rotate(0deg); }
+  61% { transform: rotate(2.6deg); }
+  65% { transform: rotate(0deg); }
+  69% { transform: rotate(2.6deg); }
+  73% { transform: rotate(0deg); }
+  78% { transform: rotate(2.6deg); }
+  82% { transform: rotate(0deg); }
+  100% { transform: rotate(0deg); }
+}
+
+/* breathing — arms stay anchored to the keyboard; the shoulder
+   overlap absorbs the offset */
+#upper-body {
+  animation: avatar-bob 4.6s ease-in-out infinite;
+}
+
+@keyframes avatar-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3.5px); }
+}
+
+#head-group {
+  transform-origin: 676px 234px; /* base of neck */
+  animation: avatar-nod 5.7s ease-in-out infinite;
+}
+
+@keyframes avatar-nod {
+  0%, 100% { transform: rotate(0deg); }
+  55% { transform: rotate(1deg); }
+}
+
+#eye-blink {
+  transform-origin: 649px 197px;
+  animation: avatar-blink 4.3s ease-out infinite;
+}
+
+@keyframes avatar-blink {
+  0%, 91.5% { transform: scaleY(1); }
+  94% { transform: scaleY(0.06); }
+  96.5%, 100% { transform: scaleY(1); }
+}
+
+/* screen light */
+#screen-glow {
+  opacity: 0.7;
+  animation: glow-pulse 3.8s ease-in-out infinite;
+}
+
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.62; }
+  45% { opacity: 0.8; }
+}
+
+#screen-wash {
+  opacity: 0.06;
+  animation: wash-pulse 3.15s ease-in-out infinite;
+}
+
+@keyframes wash-pulse {
+  0%, 100% { opacity: 0.05; }
+  50% { opacity: 0.09; }
+}
+
+/* code being written on the main monitor */
+#code-line-live {
+  transform-origin: 122px 293px;
+  animation: code-line-grow 3.9s linear infinite;
+}
+
+@keyframes code-line-grow {
+  0% { transform: scaleX(0.08); animation-timing-function: steps(5, end); }
+  58% { transform: scaleX(1); }
+  100% { transform: scaleX(1); }
+}
+
+#cursor-blink {
+  animation: cursor-blink 1.06s steps(1, end) infinite;
+}
+
+@keyframes cursor-blink {
+  0% { opacity: 1; }
+  50% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+/* coffee steam */
+#steam-1,
+#steam-2 {
+  opacity: 0.3;
+}
+
+#steam-1 { animation: steam-rise 5.2s ease-in-out infinite; }
+#steam-2 { animation: steam-rise 6.1s ease-in-out -2.6s infinite; }
+
+@keyframes steam-rise {
+  0% { transform: translate(0, 2px); opacity: 0; }
+  18% { opacity: 0.5; }
+  70% { opacity: 0.22; }
+  100% { transform: translate(2px, -14px); opacity: 0; }
+}
+
+/* ---- optional sync with the headline typewriter --------------
+   A tiny script adds .sync-ready once, then toggles .is-typing
+   while the headline is being typed. Without the script none of
+   these rules match and the avatar just types on its own. */
+
+#avatar-typing.sync-ready #arm-near-lower,
+#avatar-typing.sync-ready #arm-far-lower,
+#avatar-typing.sync-ready #code-line-live {
+  animation-play-state: paused;
+}
+
+#avatar-typing.sync-ready.is-typing #arm-near-lower,
+#avatar-typing.sync-ready.is-typing #arm-far-lower,
+#avatar-typing.sync-ready.is-typing #code-line-live {
+  animation-play-state: running;
+}
+
+/* ---- reduced motion: freeze on the resting pose ---------------
+   Base geometry is the static pose (hands on keys, glow on,
+   steam faintly visible), so removing animations is enough. */
+
+@media (prefers-reduced-motion: reduce) {
+  #avatar-typing,
+  #avatar-typing * {
+    animation: none !important;
+    transition: none !important;
+  }
+}

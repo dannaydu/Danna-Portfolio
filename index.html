@@ -80,15 +80,9 @@
                     <span class="video-corner video-corner-tr" aria-hidden="true"></span>
                     <span class="video-corner video-corner-bl" aria-hidden="true"></span>
                     <span class="video-corner video-corner-br" aria-hidden="true"></span>
-                    <video class="coding-character-video" autoplay muted loop playsinline preload="metadata"
-                        poster="resources/images/coding-character-poster.png"
-                        aria-label="Animated 3D character coding at a desk">
-                        <source src="resources/videos/coding-character.mp4" type="video/mp4">
-                    </video>
-                    <button class="video-audio-toggle" type="button" aria-label="Toggle animation sound" aria-pressed="false">
-                        <i class="fa-solid fa-volume-xmark" aria-hidden="true"></i>
-                    </button>
-                    <span class="video-rail" aria-hidden="true">Portfolio / 2026</span>
+                    <div id="avatar-room" class="avatar-room" role="img"
+                        aria-label="Interactive 3D scene of Danna typing code at her desk. Drag to rotate."></div>
+                    <span class="video-rail" aria-hidden="true">Mini Me! / 2026</span>
                 </div>
             </section>
         </main>
@@ -102,43 +96,19 @@
     <script src="js/typewriter.js"></script>
     <script>
         (function () {
-            var motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-            var videos = document.querySelectorAll('.coding-character-video');
+            var avatar = document.getElementById('avatar-room');
+            var headline = document.querySelector('.typewrite');
+            if (!avatar || !headline || !('MutationObserver' in window)) return;
 
-            function syncHeroVideoMotion() {
-                videos.forEach(function (video) {
-                    if (motionQuery.matches) {
-                        video.pause();
-                        video.removeAttribute('autoplay');
-                    } else {
-                        video.setAttribute('autoplay', '');
-                        video.play().catch(function () {});
-                    }
-                });
-            }
-
-            syncHeroVideoMotion();
-            if (motionQuery.addEventListener) {
-                motionQuery.addEventListener('change', syncHeroVideoMotion);
-            } else if (motionQuery.addListener) {
-                motionQuery.addListener(syncHeroVideoMotion);
-            }
-
-            document.querySelectorAll('.video-audio-toggle').forEach(function (button) {
-                button.addEventListener('click', function () {
-                    var frame = button.closest('.room-frame');
-                    var video = frame && frame.querySelector('.coding-character-video');
-                    var icon = button.querySelector('i');
-
-                    if (!video) return;
-                    video.muted = !video.muted;
-                    button.setAttribute('aria-pressed', String(!video.muted));
-
-                    if (icon) {
-                        icon.className = video.muted ? 'fa-solid fa-volume-xmark' : 'fa-solid fa-volume-high';
-                    }
-                });
-            });
+            avatar.classList.add('sync-ready');
+            var idleTimer;
+            new MutationObserver(function () {
+                avatar.classList.add('is-typing');
+                clearTimeout(idleTimer);
+                idleTimer = setTimeout(function () {
+                    avatar.classList.remove('is-typing');
+                }, 320);
+            }).observe(headline, { childList: true, subtree: true, characterData: true });
         })();
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r121/three.min.js"></script>
@@ -160,6 +130,7 @@
             zoom: 1.07
         })
     </script>
+    <script src="js/avatar-room.js"></script>
     <script src="js/nav.js"></script>
 </body>
 

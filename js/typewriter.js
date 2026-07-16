@@ -69,6 +69,9 @@ function debounce(func, wait = 10) {
 }
 
 document.querySelectorAll('.photo-danna').forEach(card => {
+    // the 3D hero diorama has its own drag-to-rotate; skip the CSS tilt
+    if (card.querySelector('#avatar-room')) return;
+
     card.addEventListener('mousemove', e => {
         const rect = card.getBoundingClientRect();
         const x = e.clientX - rect.left; // x position within the element
