@@ -7,6 +7,15 @@
   if (!container) return;
 
   var POSTER = 'resources/images/coding-character-poster.png';
+  var DESK_MODEL = 'resources/models/adjustable-desk.glb';
+  var KEYBOARD_MODEL = 'resources/models/mechanical-keyboard.glb';
+  var MONITOR_MODEL = 'resources/models/curved_gaming_monitor.glb';
+  var PC_MODEL = 'resources/models/pc_gamer_animation.glb';
+  var CHAIR_MODEL = 'resources/models/Office Chair.glb';
+  var MACBOOK_MODEL = 'resources/models/macbook_pro_m3_16_inch_2024.glb';
+  var SMISKI_MODEL = 'resources/models/smiski_cat.glb';
+  var COFFEE_MODEL = 'resources/models/coffe_cafe.glb';
+  var MOUSE_MODEL = 'resources/models/razer_basilisk_v3.glb';
 
   function fallbackImage() {
     var img = document.createElement('img');
@@ -45,11 +54,37 @@
 
   var scene, camera, renderer, root;
   var animated = [];       // per-frame update callbacks
+  var mixers = [];         // THREE.AnimationMixer instances from GLB clips
   var rafId = null;
   var clock = new THREE.Clock();
   var elapsed = 0;
   var motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
   var HOME_Y = -0.52; // resting heading: three-quarter view, profile + screens
+  var KEYBOARD_TARGET = {
+    width: 0.6,
+    height: 0.075,
+    depth: 0.5,
+    bottomY: 0.823,
+    centerX: 0,
+    centerZ: -0.45
+  };
+  // curved gaming monitor: sits on the desk, screen faces the character (+Z)
+  var MONITOR_TARGET = { height: 0.68, centerX: 0, bottomY: 0.823, centerZ: -0.85, rotY: Math.PI / 2 };
+  // gaming PC tower: on the desk to the right, glass panel angled to camera
+  var PC_TARGET = { height: 0.6, centerX: 1.4, bottomY: 0.823, centerZ: -0.5, rotY: -.05 };
+  // nudge the character + chair + rug toward the keyboard (−Z, the way she
+  // faces) so her hands land on the keys; nothing else moves
+  var SEAT_FORWARD = -0.13;
+  // office chair: replaces the procedural chair the character sits in
+  var CHAIR_TARGET = { height: 1.18, centerX: 0, bottomY: 0.02, centerZ: 0.33 + SEAT_FORWARD, rotY: Math.PI };
+  // secondary MacBook, open on the left of the desk, screen angled to camera
+  var MACBOOK_TARGET = { height: 0.24, centerX: -0.72, bottomY: 0.823, centerZ: -0.52, rotY: 4 + Math.PI };
+  // Smiski cat figurine perched on the desk, front-left; animated idle
+  var SMISKI_TARGET = { height: 0.8, centerX: -1.4, bottomY: 0.7, centerZ: -0.85, rotY: 0  };
+  // coffee (replaces the procedural mug); has a baked animation
+  var COFFEE_TARGET = { height: 0.14, centerX: 0.74, bottomY: 0.823, centerZ: -0.37, rotY: 0 };
+  // Razer mouse (replaces the procedural mouse), on the mousepad
+  var MOUSE_TARGET = { height: 0.042, centerX: 0.42, bottomY: 0.822, centerZ: -0.45, rotY: Math.PI };
   // drag-to-spin state (Resend-cube style: momentum, then ease back home)
   var drag = { active: false, lastX: 0, lastY: 0, velY: 0, rotY: 0, rotX: 0, idleAt: 0 };
 
@@ -164,21 +199,303 @@
     return g;
   }
 
+  function buildFallbackDesk(parent) {
+    add(parent, box(2.5, 0.07, 0.85), mat(C.desk, { roughness: 0.45, metalness: 0.2 }), 0, 0.78, -0.55);
+    [-1, 1].forEach(function (s) {
+      add(parent, box(0.07, 0.78, 0.6), C.deskLeg, s * 1.12, 0.39, -0.55);
+    });
+  }
+
+  function buildModelDesk(parent) {
+    if (!THREE.GLTFLoader) {
+      buildFallbackDesk(parent);
+      return;
+    }
+
+    var loader = new THREE.GLTFLoader();
+    loader.load(DESK_MODEL, function (gltf) {
+      var desk = gltf.scene;
+      var bounds = new THREE.Box3().setFromObject(desk);
+      var size = new THREE.Vector3();
+      var center = new THREE.Vector3();
+      bounds.getSize(size);
+      bounds.getCenter(center);
+
+      var scale = new THREE.Vector3(
+        1 / size.x,
+        0.78 / size.y,
+        3.3 / size.z
+      );
+      var deskGroup = new THREE.Group();
+      deskGroup.position.set(0, 0.82, -0.5);
+      deskGroup.rotation.y = Math.PI * 1.5;
+      desk.scale.copy(scale);
+      desk.position.set(
+        -center.x * scale.x,
+        -bounds.max.y * scale.y,
+        -center.z * scale.z
+      );
+
+      desk.traverse(function (node) {
+        if (!node.isMesh) return;
+        node.castShadow = true;
+        node.receiveShadow = true;
+        if (node.material) {
+          node.material.roughness = Math.max(node.material.roughness || 0, 0.45);
+        }
+      });
+
+      deskGroup.add(desk);
+      parent.add(deskGroup);
+      if (rafId === null && renderer && scene && camera) renderer.render(scene, camera);
+    }, undefined, function () {
+      buildFallbackDesk(parent);
+      if (rafId === null && renderer && scene && camera) renderer.render(scene, camera);
+    });
+  }
+
+  function buildFallbackKeyboard(parent) {
+    add(parent, box(0.52, 0.03, 0.19), C.keyboard, 0, 0.8, -0.3);
+    var keyGeo = box(0.035, 0.016, 0.035);
+    var keyMat = mat(C.key);
+    var accentKeyMat = mat(C.accent);
+    for (var r = 0; r < 3; r++) {
+      for (var k = 0; k < 10; k++) {
+        add(parent, keyGeo, (r === 0 && k === 0) ? accentKeyMat : keyMat,
+          -0.21 + k * 0.047, 0.822, -0.35 + r * 0.05);
+      }
+    }
+  }
+
+  function buildModelKeyboard(parent) {
+    if (!THREE.GLTFLoader) {
+      buildFallbackKeyboard(parent);
+      return;
+    }
+
+    var loader = new THREE.GLTFLoader();
+    loader.load(KEYBOARD_MODEL, function (gltf) {
+      var keyboard = gltf.scene;
+      // the GLB is baked in a diagonal product-shot pose; rotate it flat
+      // first (rows map model width->X, top->Y, front edge->+Z), otherwise
+      // the axis-aligned fit below squashes it into a tilted slab
+      keyboard.quaternion.setFromRotationMatrix(new THREE.Matrix4().set(
+        -0.5551, 0.2093, -0.8050, 0,
+        0.2606, -0.8753, -0.4073, 0,
+        -0.7899, -0.4359, 0.4314, 0,
+        0, 0, 0, 1
+      ));
+
+      var keyboardGroup = new THREE.Group();
+      keyboardGroup.add(keyboard);
+      keyboardGroup.updateMatrixWorld(true);
+      var bounds = new THREE.Box3().setFromObject(keyboardGroup);
+      var size = new THREE.Vector3();
+      bounds.getSize(size);
+
+      keyboardGroup.scale.set(
+        KEYBOARD_TARGET.width / size.x,
+        KEYBOARD_TARGET.height / size.y,
+        KEYBOARD_TARGET.depth / size.z
+      );
+      keyboardGroup.updateMatrixWorld(true);
+
+      var placedBounds = new THREE.Box3().setFromObject(keyboardGroup);
+      var placedCenter = new THREE.Vector3();
+      placedBounds.getCenter(placedCenter);
+      keyboardGroup.position.set(
+        KEYBOARD_TARGET.centerX - placedCenter.x,
+        KEYBOARD_TARGET.bottomY - placedBounds.min.y,
+        KEYBOARD_TARGET.centerZ - placedCenter.z
+      );
+
+      keyboard.traverse(function (node) {
+        if (!node.isMesh) return;
+        node.castShadow = true;
+        node.receiveShadow = true;
+        if (node.material) {
+          node.material.roughness = Math.max(node.material.roughness || 0, 0.35);
+        }
+      });
+
+      parent.add(keyboardGroup);
+      if (rafId === null && renderer && scene && camera) renderer.render(scene, camera);
+    }, undefined, function () {
+      buildFallbackKeyboard(parent);
+      if (rafId === null && renderer && scene && camera) renderer.render(scene, camera);
+    });
+  }
+
+  // Orient (optional Y-spin), uniformly scale to a target height, then drop the
+  // model so its footprint centre / bottom land at (centerX, bottomY, centerZ).
+  // Uniform scaling keeps model proportions (unlike the keyboard's box fit).
+  function placeModel(obj, target, minRough, onMesh) {
+    if (target.rotY) obj.rotation.y = target.rotY;
+    var group = new THREE.Group();
+    group.add(obj);
+    group.updateMatrixWorld(true);
+    var bounds = new THREE.Box3().setFromObject(group);
+    var size = new THREE.Vector3();
+    bounds.getSize(size);
+    group.scale.setScalar(target.height / size.y);
+    group.updateMatrixWorld(true);
+
+    var placed = new THREE.Box3().setFromObject(group);
+    var center = new THREE.Vector3();
+    placed.getCenter(center);
+    group.position.set(
+      target.centerX - center.x,
+      target.bottomY - placed.min.y,
+      target.centerZ - center.z
+    );
+
+    obj.traverse(function (node) {
+      if (!node.isMesh) return;
+      node.castShadow = true;
+      node.receiveShadow = true;
+      if (node.material && minRough != null) {
+        node.material.roughness = Math.max(node.material.roughness || 0, minRough);
+      }
+      if (onMesh) onMesh(node);
+    });
+    return group;
+  }
+
+  function loadModel(url, target, minRough, parent, onFail, onMesh, clipIndices) {
+    if (!THREE.GLTFLoader) { if (onFail) onFail(); return; }
+    var loader = new THREE.GLTFLoader();
+    loader.load(url, function (gltf) {
+      parent.add(placeModel(gltf.scene, target, minRough, onMesh));
+      // play baked clips (fans, figurine idle, steam), looping. clipIndices
+      // limits to specific clips when some would fight over the same bones.
+      if (gltf.animations && gltf.animations.length) {
+        var mixer = new THREE.AnimationMixer(gltf.scene);
+        var clips = clipIndices
+          ? clipIndices.map(function (i) { return gltf.animations[i]; })
+          : gltf.animations;
+        clips.forEach(function (clip) { if (clip) mixer.clipAction(clip).play(); });
+        mixers.push(mixer);
+      }
+      if (rafId === null && renderer && scene && camera) renderer.render(scene, camera);
+    }, undefined, function () {
+      if (onFail) onFail();
+      if (rafId === null && renderer && scene && camera) renderer.render(scene, camera);
+    });
+  }
+
+  // Animated "code editor" drawn to a canvas, returned as a texture that
+  // self-types line by line and loops. Used as the curved monitor's screen.
+  function makeCodeScreen() {
+    var canvas = document.createElement('canvas');
+    canvas.width = 1024; canvas.height = 460;
+    var ctx = canvas.getContext('2d');
+    var tex = new THREE.CanvasTexture(canvas);
+    tex.encoding = THREE.sRGBEncoding;
+    tex.minFilter = THREE.LinearFilter;
+    tex.generateMipmaps = false;
+
+    var COL = {
+      bg: '#0c1119', gutter: '#38415c', caret: '#f18845',
+      def: '#d6dae8', kw: '#f18845', str: '#86b58f', com: '#6b7690', fn: '#e6c07b'
+    };
+    // each line is a list of [text, colorKey] tokens
+    var CODE = [
+      [['const ', 'kw'], ['me', 'def'], [' = ', 'def'], ['{', 'def']],
+      [['  name: ', 'def'], ["'danna'", 'str'], [',', 'def']],
+      [['  role: ', 'def'], ["'creative dev'", 'str'], [',', 'def']],
+      [['};', 'def']],
+      [['', 'def']],
+      [['function ', 'kw'], ['build', 'fn'], ['(portfolio) {', 'def']],
+      [['  // ship something fun ✦', 'com']],
+      [['  return ', 'kw'], ['portfolio', 'def'], ['.', 'def'], ['render', 'fn'], ['();', 'def']],
+      [['}', 'def']],
+      [['', 'def']],
+      [['await ', 'kw'], ['build', 'fn'], ['(', 'def'], ['me', 'def'], [');', 'def']]
+    ];
+    var lens = CODE.map(function (line) {
+      return line.reduce(function (a, t) { return a + t[0].length; }, 0);
+    });
+    var total = lens.reduce(function (a, b) { return a + b; }, 0);
+
+    var padX = 60, padTop = 46, lineH = 34, fontPx = 24;
+    var cps = 26, cycle = total + 70; // chars, + tail hold before looping
+
+    function draw(shown, caretOn) {
+      ctx.fillStyle = COL.bg;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.font = fontPx + "px Menlo, Consolas, 'DejaVu Sans Mono', monospace";
+      ctx.textBaseline = 'middle';
+
+      var before = 0, caretX = padX, caretY = padTop;
+      for (var li = 0; li < CODE.length; li++) {
+        var y = padTop + li * lineH;
+        ctx.fillStyle = COL.gutter;
+        ctx.fillText(String(li + 1), 20, y);
+
+        var lineShown = Math.max(0, Math.min(shown - before, lens[li]));
+        var x = padX, drawn = 0;
+        for (var ti = 0; ti < CODE[li].length && drawn < lineShown; ti++) {
+          var txt = CODE[li][ti][0];
+          var vis = (lineShown - drawn) < txt.length ? txt.slice(0, lineShown - drawn) : txt;
+          ctx.fillStyle = COL[CODE[li][ti][1]];
+          ctx.fillText(vis, x, y);
+          x += ctx.measureText(vis).width;
+          drawn += vis.length;
+        }
+        // caret rides the line currently being typed
+        if (shown >= before && shown <= before + lens[li]) { caretX = x; caretY = y; }
+        before += lens[li];
+      }
+      if (caretOn) {
+        ctx.fillStyle = COL.caret;
+        ctx.fillRect(caretX + 2, caretY - fontPx / 2, 11, fontPx);
+      }
+      tex.needsUpdate = true;
+    }
+
+    var lastShown = -1, lastCaret = null;
+    draw(0, true);
+    return {
+      texture: tex,
+      update: function (t) {
+        var pos = (t * cps) % cycle;
+        var shown = Math.min(Math.floor(pos), total);
+        var caretOn = (t % 1) < 0.55;
+        if (shown !== lastShown || caretOn !== lastCaret) {
+          draw(shown, caretOn);
+          lastShown = shown; lastCaret = caretOn;
+        }
+      }
+    };
+  }
+
+  function buildProceduralMonitors(parent) {
+    buildMonitor(parent, 0.95, 0.58, -0.42, 0.2, [
+      [0, 0.32, 'orange'], [0.07, 0.55, 'cream'], [0.07, 0.42, 'dim'],
+      [0.14, 0.6, 'cream'], [0.14, 0.34, 'orange'], [0.07, 0.48, 'dim'],
+      [0, 0.62, 'orange', 'live']
+    ], false);
+    buildMonitor(parent, 0.72, 0.46, 0.52, -0.22, [
+      [0, 0.38, 'cream'], [0, 0.52, 'dim'], [0, 0.44, 'dim'], [0, 0.55, 'cream']
+    ], true);
+  }
+
+  function buildFallbackChair(parent) {
+    add(parent, cyl(0.3, 0.34, 0.09, 14), C.chair, 0, 0.58, 0.3);
+    var back = add(parent, box(0.36, 0.52, 0.07), C.chair, 0, 1.0, 0.63);
+    back.rotation.x = -0.12;
+    add(parent, cyl(0.035, 0.035, 0.42, 8), C.chairDark, 0, 0.36, 0.3);
+    for (var i = 0; i < 4; i++) {
+      var legA = i * Math.PI / 2 + Math.PI / 4;
+      var leg = add(parent, box(0.34, 0.035, 0.06), C.chairDark, Math.cos(legA) * 0.17, 0.12, 0.3 + Math.sin(legA) * 0.17);
+      leg.rotation.y = -legA;
+      add(parent, sph(0.045, 8), C.chairDark, Math.cos(legA) * 0.32, 0.07, 0.3 + Math.sin(legA) * 0.32);
+    }
+  }
+
   function buildCharacter(parent) {
     var g = new THREE.Group(); // faces -Z (toward the monitors)
     parent.add(g);
-
-    // chair
-    add(g, cyl(0.3, 0.34, 0.09, 14), C.chair, 0, 0.58, 0.3);
-    var back = add(g, box(0.36, 0.52, 0.07), C.chair, 0, 1.0, 0.63);
-    back.rotation.x = -0.12;
-    add(g, cyl(0.035, 0.035, 0.42, 8), C.chairDark, 0, 0.36, 0.3);
-    for (var i = 0; i < 4; i++) {
-      var legA = i * Math.PI / 2 + Math.PI / 4;
-      var leg = add(g, box(0.34, 0.035, 0.06), C.chairDark, Math.cos(legA) * 0.17, 0.12, 0.3 + Math.sin(legA) * 0.17);
-      leg.rotation.y = -legA;
-      add(g, sph(0.045, 8), C.chairDark, Math.cos(legA) * 0.32, 0.07, 0.3 + Math.sin(legA) * 0.32);
-    }
 
     var skinM = smat(0xf0b78f, 0.55);
     var hairM = smat(0x242031, 0.5);
@@ -365,74 +682,61 @@
 
     // floating platform (Vanta waves show around it through the frame)
     add(root, box(3.6, 0.16, 2.55), mat(0x0e1119, { roughness: 0.6, metalness: 0.05 }), 0, -0.08, -0.1);
-    add(root, cyl(0.85, 0.85, 0.015, 24), C.rug, 0, 0.008, 0.35).receiveShadow = true;
+    add(root, cyl(0.85, 0.85, 0.015, 24), C.rug, 0, 0.008, 0.35 + SEAT_FORWARD).receiveShadow = true;
 
     // desk
-    add(root, box(2.5, 0.07, 0.85), mat(C.desk, { roughness: 0.45, metalness: 0.2 }), 0, 0.78, -0.55);
-    [-1, 1].forEach(function (s) {
-      add(root, box(0.07, 0.78, 0.6), C.deskLeg, s * 1.12, 0.39, -0.55);
-    });
+    buildModelDesk(root);
 
-    buildMonitor(root, 0.95, 0.58, -0.42, 0.2, [
-      [0, 0.32, 'orange'],
-      [0.07, 0.55, 'cream'],
-      [0.07, 0.42, 'dim'],
-      [0.14, 0.6, 'cream'],
-      [0.14, 0.34, 'orange'],
-      [0.07, 0.48, 'dim'],
-      [0, 0.62, 'orange', 'live']
-    ], false);
-    buildMonitor(root, 0.72, 0.46, 0.52, -0.22, [
-      [0, 0.38, 'cream'],
-      [0, 0.52, 'dim'],
-      [0, 0.44, 'dim'],
-      [0, 0.55, 'cream']
-    ], true);
-
-    // keyboard + keys (one accent keycap, like the inspo)
-    add(root, box(0.52, 0.03, 0.19), C.keyboard, 0, 0.8, -0.3);
-    var keyGeo = box(0.035, 0.016, 0.035);
-    var keyMat = mat(C.key);
-    var accentKeyMat = mat(C.accent);
-    for (var r = 0; r < 3; r++) {
-      for (var k = 0; k < 10; k++) {
-        add(root, keyGeo, (r === 0 && k === 0) ? accentKeyMat : keyMat,
-          -0.21 + k * 0.047, 0.822, -0.35 + r * 0.05);
+    // curved gaming monitor (falls back to the animated code screens).
+    // drive its screen with a self-typing code editor rendered to a canvas;
+    // the emissiveMap makes it glow its own content in the dark room.
+    loadModel(MONITOR_MODEL, MONITOR_TARGET, null, root, function () {
+      buildProceduralMonitors(root);
+    }, function (node) {
+      if (node.material && node.material.name === 'screen') {
+        var codeScreen = makeCodeScreen();
+        node.material.emissive.setHex(0xffffff);
+        node.material.emissiveMap = codeScreen.texture;
+        node.material.emissiveIntensity = 1;
+        node.material.map = codeScreen.texture;
+        node.material.color.setHex(0x000000);
+        node.material.needsUpdate = true;
+        animated.push(function (t) { codeScreen.update(t); });
       }
-    }
-
-    // mousepad + mouse
-    add(root, box(0.22, 0.008, 0.17), mat(0x161923), 0.42, 0.818, -0.3);
-    var mouse = add(root, sph(0.045, 18), smat(0x232734, 0.4), 0.42, 0.845, -0.29);
-    mouse.scale.set(0.75, 0.5, 1.15);
-
-    // mug + steam
-    add(root, cyl(0.055, 0.05, 0.12, 12), C.accent, 0.72, 0.845, -0.35);
-    add(root, new THREE.TorusBufferGeometry(0.035, 0.011, 6, 12), C.accent, 0.78, 0.85, -0.35)
-      .rotation.y = 0; // handle
-    var steamMats = [];
-    for (var sIdx = 0; sIdx < 3; sIdx++) {
-      var sm = new THREE.MeshBasicMaterial({ color: C.cream, transparent: true, opacity: 0 });
-      var puff = add(root, sph(0.02 + sIdx * 0.006, 6), sm, 0.72, 0.95, -0.35);
-      puff.castShadow = false;
-      steamMats.push({ m: sm, mesh: puff, phase: sIdx / 3 });
-    }
-    animated.push(function (t) {
-      steamMats.forEach(function (s) {
-        var p = ((t / 5.2) + s.phase) % 1;
-        s.mesh.position.y = 0.93 + p * 0.28;
-        s.mesh.position.x = 0.72 + Math.sin(p * Math.PI * 2) * 0.015;
-        s.m.opacity = Math.sin(p * Math.PI) * 0.38;
-      });
     });
 
-    // desk plant
-    add(root, cyl(0.045, 0.035, 0.07, 8), C.pot, -1.05, 0.85, -0.65);
-    add(root, sph(0.05, 7), C.plant, -1.05, 0.93, -0.65);
-    add(root, sph(0.038, 7), C.plant, -1.0, 0.96, -0.63);
-    add(root, sph(0.032, 7), C.plant, -1.09, 0.97, -0.67);
+    // gaming PC tower on the floor beside the desk
+    loadModel(PC_MODEL, PC_TARGET, 0.3, root);
 
-    buildCharacter(root);
+    // office chair (falls back to the low-poly chair)
+    loadModel(CHAIR_MODEL, CHAIR_TARGET, 0.55, root, function () {
+      buildFallbackChair(root);
+    });
+
+    // keyboard
+    buildModelKeyboard(root);
+
+    // mousepad + Razer mouse (replaces the low-poly mouse); pad stays centred
+    // under the mouse by reusing the mouse's target position
+    add(root, box(0.22, 0.008, 0.17), mat(0x161923), MOUSE_TARGET.centerX, 0.818, MOUSE_TARGET.centerZ);
+    loadModel(MOUSE_MODEL, MOUSE_TARGET, 0.4, root);
+
+    // coffee (replaces the mug + procedural steam); plays its baked animation
+    loadModel(COFFEE_MODEL, COFFEE_TARGET, 0.5, root);
+
+    // open MacBook on the left of the desk
+    loadModel(MACBOOK_MODEL, MACBOOK_TARGET, 0.4, root);
+
+    // Smiski cat figurine, animated idle (clip 2 fights clip 1's bones, skip it)
+    loadModel(SMISKI_MODEL, SMISKI_TARGET, 0.6, root, null, null, [0, 1]);
+
+    // desk plant (sits beside the Smiski)
+    add(root, cyl(0.045, 0.035, 0.07, 8), C.pot, -1.4, 0.85, -0.6);
+    add(root, sph(0.05, 7), C.plant, -1.4, 0.93, -0.6);
+    add(root, sph(0.038, 7), C.plant, -1.35, 0.96, -0.58);
+    add(root, sph(0.032, 7), C.plant, -1.44, 0.97, -0.62);
+
+    buildCharacter(root).position.z = SEAT_FORWARD;
 
     // lights: dim, warm key + orange rim; the screens carry the mood
     scene.add(new THREE.HemisphereLight(0xd8dcf0, 0x05070c, 0.14));
@@ -483,6 +787,7 @@
     var typing = !container.classList.contains('sync-ready') ||
       container.classList.contains('is-typing');
     for (var i = 0; i < animated.length; i++) animated[i](elapsed, typing);
+    for (var mi = 0; mi < mixers.length; mi++) mixers[mi].update(dt);
 
     if (!drag.active) {
       drag.rotY += drag.velY;
